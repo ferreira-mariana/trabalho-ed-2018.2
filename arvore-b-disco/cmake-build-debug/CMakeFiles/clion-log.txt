@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/vanessa/Dropbox/Documents/Disciplinas/ED/Aulas/11-ArvoreB/arvore-b-disco
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/vanessa/Dropbox/Documents/Disciplinas/ED/Aulas/11-ArvoreB/arvore-b-disco/cmake-build-debug
