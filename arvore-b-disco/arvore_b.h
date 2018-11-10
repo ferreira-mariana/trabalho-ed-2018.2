@@ -1,32 +1,59 @@
 #ifndef ARVORE_B_H
 #define ARVORE_B_H
 
-// Executa busca em Arquivos utilizando Arvore B
-// Assumir que ponteiro para prpximo noh eh igual a -1 quando nao houver proximo noh
-// cod_cli: chave do cliente que esta sendo buscado
-// nome_arquivo_metadados: nome do arquivo que contem os metadados
-// nome_arquivo_dados: nome do arquivo que contem a arvore B
-// pont: ponteiro para indicar pagina que contem chave (se encontrar)
-//   ou ultima pagina examinada (caso contrario)
-// encontrou: pointeiro para indicar se encontrou o cliente
-//	 1 se encontrou, 0 caso contrario
-// Retorna posicao em que a chave se encontra dentro da pagina (se encontrar)
-//   ou a posicao, na pagina pont, onde a chave deveria estar inserida
-int busca(int cod_cli, char *nome_arquivo_metadados, char *nome_arquivo_dados, int *pont, int *encontrou);
+typedef struct info{
+    char titulo[80];
+    int ano;
+    char diretor[50];
+    char genero[30]
+    int minutos;
 
-// Executa insercao em Arquivos Indexados por Arvore B
-// cod_cli: chave do cliente que esta sendo inserido
-// nome_cli: nome do cliente a ser inserido
-// nome_arquivo_metadados: nome do arquivo que contem os metadados
-// nome_arquivo_dados: nome do arquivo que contem a arvore B
-// Retorna o endereco onde o cliente foi inserido, ou -1 se nao conseguiu inserir
-int insere(int cod_cli, char *nome_cli, char *nome_arquivo_metadados, char *nome_arquivo_dados);
+}Info;
 
-// Executa exclusao em Arquivos Indexados por Arvores B
-// cod_cli: chave do cliente a ser excluido
-// nome_arquivo_metadados: nome do arquivo que contem os metadados
-// nome_arquivo_dados: nome do arquivo que contem a arvore B
-// Retorna o endereco do cliente que foi excluido, ou -1 se cliente nao existe
-int exclui(int cod_cli, char *nome_arquivo_metadados, char *nome_arquivo_dados);
+typedef struct No{
+    int num_chaves, folha;
+    char **chave;
+    Info **info;
+    struct No **filho, *pai;
+}No;
+
+//TALVEZ PRECISE ADICIONAR PARAMETROS TIPO ALTURA DA ARVORE (NIVEL) OU ORDEM DA ARVORE
+
+
+No* cria_no(char* chave, Info info); //primeiro vai ter que criar um no com essas informacoes
+
+No* insere_no(char* chave, Info info); //recebe o no novo e coloca na arvore e retorna a original com o no novo
+//chama a cria_no e depois faz a insercao
+
+No* remove_no(char* chave); //recebe a chave do no a ser removido e retorna a arvore original sem o no
+
+No* busca_no(No* raiz, char* chave); //recebe a chave e a raiz e retorna o no que esta procurando
+//se nao achar retorna NULL
+
+void busca_infos(No* raiz, char* chave); //recebe uma arvore, usa a busca_no e imprime as infos daquela chave
+
+No* altera_info(char* chave, char info_alterada, char* novo_valor);
+    //recebe a chave, usa a busca_no
+    //info alterada:
+    //t = titulos, a = ano, d = diretor, g = genero, m = minutos
+    //a pessoa digita a letra correspondente ao que ela quer alterar
+    //se a pessoa digitar t por exemplo, altera o titulo para o novo_valor
+    //caso o tipo da nova info seja int, converte novo_valor pra int e aí muda
+    //retorna o no com as infos alteradas
+
+void busca_filmes(No *raiz, char* diretor);
+    //procura em cada chave da arvore pra ver se aquele filme tem esse diretor
+    //imprime filme
+
+No *remove_filmes(No *raiz, char* diretor);
+    //procura em cada chave da arvore para ver se aquele filme tem esse diretor
+    //remove filme
+
+/* FUNCOES QUE TEM QUE BOTAR NO PROGRAMA:
+- Inserção e remoção de nós da árvore B (ou seja, inserção e remoção de filmes);
+- Busca das informações subordinadas, dada a chave primária;
+- Alteração SOMENTE das informações subordinadas, dada a chave primária;
+Busca de todos os filmes de um determinado diretor; e
+Remoção de todos os filmes de uma determinada categoria. */
 
 #endif
