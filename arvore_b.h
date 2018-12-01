@@ -41,7 +41,7 @@ No* remove_no(No* raiz, char* chave, int ordem); //recebe a chave do no a ser re
 void busca_infos(No* raiz, char* chave); //recebe uma arvore, usa a busca_no e imprime as infos daquela chave
 
 No* altera_info(char* chave, char info_alterada, char* novo_valor);
-    
+
     //recebe a chave, usa a busca_no
     //info alterada:
     //t = titulos, a = ano, d = diretor, g = genero, m = minutos

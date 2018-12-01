@@ -66,7 +66,7 @@ void imprime(No *arv, int nivel) {
 
 No *busca_no(No* raiz, char* chave){
 	printf("Buscando o no de chave %s\n", chave);
-      
+
     if(!raiz) return NULL; //nao achou
     else{
         int i = 0;
@@ -80,11 +80,11 @@ No *busca_no(No* raiz, char* chave){
         }
         else if(raiz->filho[i] != NULL){
             return busca(raiz->filho[i], chave); //faz a mesma busca para o filho onde a chave estaria
-        } 
+        }
         else{
             printf("\nnao achei\n");
             return raiz; //se não acha, retorna o no onde deveria estar a chave
-        } 
+        }
     }
 }
 
@@ -237,7 +237,7 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
         } else {
             //encontra posição de inserção
             int i = no->num_chaves;
-            while (i >= 0 && strcmp(chave , no->chave[i - 1])<0) {
+            while (i > 0 && strcmp(chave , no->chave[i - 1])<0) {
                 strcpy(no->chave[i],no->chave[i - 1]);
                 no->filho[i + 1] = no->filho[i];
                 i--;
@@ -262,17 +262,17 @@ int main(){
     //int ordem = 2;
     //No *arv = inicializa();
     //char nome_arq[128];
-    
+
     //printf("Por favor, digite o nome do arquivo: \n");
     //scanf("%s", nome_arq);
-    
+
 
     //SE A PRIMEIRA PALAVRA FOR "MENOR" OU SEJA VIER ANTES NO ALFABETO RETORNA UM NUMERO NEGATIVO
-    
+
 /*
 
     arv = insere(arv, 1, "carol", NULL, ordem);
-    
+
     imprime(arv,0);
 
     arv = insere(arv, 1, "oi", NULL, ordem);
@@ -284,13 +284,13 @@ int main(){
     imprime(arv,0);
 
     arv = insere(arv, 1, "elisa", NULL, ordem);
-    
+
     imprime(arv,0);
 
     arv = insere(arv, 1, "bia", NULL, ordem);
 
     imprime(arv,0);
-    
+
 */
     //arv = leLinhas(arv, nome_arq, ordem);
 
