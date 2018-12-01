@@ -63,7 +63,8 @@ void imprime(No *arv, int nivel) {
     }
 }
 
-
+/* não está sendo utilizada
+ *
 No *busca_no(No* raiz, char* chave){
 	printf("Buscando o no de chave %s\n", chave);
 
@@ -87,7 +88,7 @@ No *busca_no(No* raiz, char* chave){
         }
     }
 }
-
+*/
 
 No *busca(No *no, char* chave) {
     printf("buscando a chave %s\n", chave);
