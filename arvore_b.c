@@ -289,7 +289,7 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
         for ( i = 0; i < no->num_chaves && strcasecmp(chave, no->chave[i]) > 0; i++);  //procura a chave dentro daquele nó
         if (strcasecmp(chave, no->chave[i]) == 0) { //achou a chave do nó a ser removido
             printf("achou chave %s na pagina\n", chave);
-            if(no->folha && no->num_chaves >= ordem){ //no é folha e o num chaves não é o mínimo
+            if(no->folha && no->num_chaves > ordem){ //no é folha e o num chaves não é o mínimo
                 printf("nó %s é folha\n", chave);
                 for(int j = i; j < no->num_chaves-1; j++){
                     strcpy(no->chave[j], no->chave[j+1]); //shift para esquerda das chaves
@@ -305,6 +305,9 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
             else {
                 //numero de chaves é o mínimo
                 //fazer concatenação ou redistribuição
+                printf("nao pode simplesmente remover porque o nó está com o numero mínimo de chaves\n");
+                printf("precisa fazer concatenação ou redistribuição\n");
+                return raiz;
             }
         }
     }
@@ -317,6 +320,8 @@ int main(){
 
 
     arvore = remove_no(arvore, "Back to the Future1985", 2);
+    arvore = remove_no(arvore, "3002006", 2);
+    arvore = remove_no(arvore, "Dances with Wolves1990", 2);
     imprime(arvore, 0);
     //int ordem = 2;
     //No *arv = inicializa();
