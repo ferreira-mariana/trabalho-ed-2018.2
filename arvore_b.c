@@ -45,9 +45,8 @@ No *libera(No *arv, int ordem) {
     }
     return NULL;
 }
-
+/*
 void imprime(No *arv, int nivel) {
-    printf("\nIMPRIMINDO ARVORE:\n");
     if (arv != NULL) {
         int i;
         for (i = 0; i < arv->num_chaves; i++) {
@@ -55,6 +54,7 @@ void imprime(No *arv, int nivel) {
         }
         printf("\n");
         if (arv->folha != 1) { //se nao for folha chama a imprime pra cada um dos filhos e aumenta um nivel
+    //        printf("NAO E FOLHA\n");
             int i;
             for (i = 0; i <= arv->num_chaves; i++) { //nao sei se coloco <= ou so <
                 imprime(arv->filho[i], nivel + 1);
@@ -62,12 +62,23 @@ void imprime(No *arv, int nivel) {
         }
     }
 }
+*/
+void imprime(No *a, int andar){
+  if(a){
+    int i,j;
+    for(i=0; i<=a->num_chaves-1; i++){
+      imprime(a->filho[i],andar+1);
+      for(j=0; j<=andar; j++) printf("              ");
+      printf("%s\n", a->chave[i]);
+    }
+    imprime(a->filho[i],andar+1);
+  }
+}
 
-/* não está sendo utilizada
- *
+
 No *busca_no(No* raiz, char* chave){
 	printf("Buscando o no de chave %s\n", chave);
-
+      
     if(!raiz) return NULL; //nao achou
     else{
         int i = 0;
@@ -81,25 +92,28 @@ No *busca_no(No* raiz, char* chave){
         }
         else if(raiz->filho[i] != NULL){
             return busca(raiz->filho[i], chave); //faz a mesma busca para o filho onde a chave estaria
-        }
+        } 
         else{
             printf("\nnao achei\n");
             return raiz; //se não acha, retorna o no onde deveria estar a chave
-        }
+        } 
     }
 }
-*/
+
 
 No *busca(No *no, char* chave) {
     printf("buscando a chave %s\n", chave);
     if (no != NULL) {
         int i = 0;
         while (i < no->num_chaves && strcmp(chave, no->chave[i])>0) {
+            //printf("vai pro lado\n");
             i++;
         }
         if (i < no->num_chaves && strcmp(chave, no->chave[i])==0) {
+            printf("achou chave igual\n");
             return no;
         } else if (no->filho[i] != NULL) {
+            printf("busca no filho");
             return busca(no->filho[i], chave);
         } else return no; //nó era folha -- não existem mais nós a buscar, então retorna o nó onde a chave deveria estar
     } else return NULL; //nó é NULL, não há como buscar
@@ -120,6 +134,7 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
             pos = i + 1;
         }
     }
+    printf("\nPOSICAO: %d\n", pos);
 
     if (pos == -1) {
         //chave a ser inserida é a menor de todas e deve ser inserida na primeira posição
@@ -127,10 +142,11 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
     }
 
     //salva chave da posicao d para subir para o pai (note que d equivale a d+1 já que vetor começa em ZERO
-    char *chave_d;
+    char *chave_d = (char*) malloc(sizeof(char)*200);
     No *pt_chave_d = Q; //ponteiro que sobre é sempre ponteiro para o novo nó Q
     if (pos != ordem && pos < ordem) {
         //chave vai ser inserida em posição menor que d, então tem que compensar diminuindo 1 no índice
+        printf("CHAVE QUE VAI SUBIR: %s", P->chave[ordem-1]);
         strcpy(chave_d,P->chave[ordem - 1]);
     } else if (pos != ordem) {
         strcpy(chave_d,P->chave[ordem]);
@@ -161,6 +177,7 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
 
     //Ajusta chaves em P fazendo shif se necessário
     j = ordem;
+    printf("\ni = %d\nj = %d\npos = %d\n", i, j, pos);
     while (i > pos) {
         strcpy(P->chave[i], P->chave[i - 1]);
         P->filho[i + 1] = P->filho[i];
@@ -188,8 +205,10 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
         //Arruma ponteiros da nova raiz
         pai->filho[0] = P;
         pai->filho[1] = Q;
+        pai->folha = 0;
     }
     raiz = pai;
+    //imprime(raiz, 0);
     return raiz;
 }
 
@@ -203,11 +222,11 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
         no = busca(raiz, chave);
         printf("ja buscou\n");
         if (no != NULL) {
-            printf("achou na busca\n");
             //chave buscada pode existir dentro do nó retornado
             //verificar se realmente existe
             for (int i = 0; i < no->num_chaves; i++) {
                 if (strcmp(chave, no->chave[i])==0) {
+                    printf("chave ja existe\n");
                     //chave já existe, portanto não pode ser inserida.
                     //retorna raiz original sem alterar a árvore
                     return raiz;
@@ -232,8 +251,10 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
     } else {
         printf("raiz nao eh null\n");
         if (no->num_chaves == (2 * ordem)) {
+            printf("o no ta cheio, tem que particionar\n");
             //Nó está cheio -- é necessário particionar
             //raiz da árvore pode ter mudado, então captura possível nova raiz
+            //printf("\nRaiz: %s\nP: %s\n", raiz->chave[0], no->chave[0]);
             raiz = particiona(raiz, no, chave, pt, ordem);
         } else {
             //encontra posição de inserção
@@ -254,26 +275,59 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
     return raiz;
 }
 
+No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser removido e retorna a arvore original sem o no
+    printf("removendo no %s...\n", chave);
+    if(raiz == NULL) return NULL;
+    No *no = busca(raiz, chave);  //busca o nó na arvore
+    if(no == NULL){
+        printf("nó nao existe\n");
+        return NULL; //se nao existe aquele nó na arvore, nao tem como remover
+    } 
+    else{ //se existe o nó a ser removido
+        printf("nó %s existe na arvore\n", chave);
+        int i;
+        for ( i = 0; i < no->num_chaves && strcasecmp(chave, no->chave[i]) > 0; i++);  //procura a chave dentro daquele nó
+        if (strcasecmp(chave, no->chave[i]) == 0) { //achou a chave do nó a ser removido
+            printf("achou chave %s na pagina\n", chave);
+            if(no->folha){
+                printf("nó %s é folha\n", chave);
+                for(int j = i; j < no->num_chaves-1; j++){
+                    strcpy(no->chave[j], no->chave[j+1]); //shift para esquerda das chaves
+                }
+                //free(no->chave[no->num_chaves]); //seria pra dar free da ultima chave,
+                // ja q com o shift fica repetida, mas nao está indo
+                no->num_chaves--; //decrementa o numero de chaves
+                printf("\n");
+                //for(int i=0; i<no->num_chaves; i++) printf("no->chave[%d] %s\n", i, no->chave[i]); 
+                // para conferir as chaves que tem no nó depois que foi feita a remoçao
+                return raiz;
+            }
+        }
+    }
+} 
 
 int main(){
     char *arquivo = "arquivotrab.txt";
     No *arvore = inicializa();
     arvore = leLinhas(arvore, arquivo ,2);
 
+
+    arvore = remove_no(arvore, "Back to the Future1985", 2);
+    imprime(arvore, 0);
     //int ordem = 2;
     //No *arv = inicializa();
     //char nome_arq[128];
-
+    
     //printf("Por favor, digite o nome do arquivo: \n");
     //scanf("%s", nome_arq);
-
+    
 
     //SE A PRIMEIRA PALAVRA FOR "MENOR" OU SEJA VIER ANTES NO ALFABETO RETORNA UM NUMERO NEGATIVO
-
+    
 /*
 
     arv = insere(arv, 1, "carol", NULL, ordem);
-
+    
     imprime(arv,0);
 
     arv = insere(arv, 1, "oi", NULL, ordem);
@@ -285,13 +339,13 @@ int main(){
     imprime(arv,0);
 
     arv = insere(arv, 1, "elisa", NULL, ordem);
-
+    
     imprime(arv,0);
 
     arv = insere(arv, 1, "bia", NULL, ordem);
 
     imprime(arv,0);
-
+    
 */
     //arv = leLinhas(arv, nome_arq, ordem);
 

@@ -9,7 +9,6 @@ typedef struct info{
     char diretor[50];
     char genero[30];
     int minutos;
-
 }Info;
 
 typedef struct No{
@@ -41,7 +40,7 @@ No* remove_no(No* raiz, char* chave, int ordem); //recebe a chave do no a ser re
 void busca_infos(No* raiz, char* chave); //recebe uma arvore, usa a busca_no e imprime as infos daquela chave
 
 No* altera_info(char* chave, char info_alterada, char* novo_valor);
-
+    
     //recebe a chave, usa a busca_no
     //info alterada:
     //t = titulos, a = ano, d = diretor, g = genero, m = minutos
@@ -50,12 +49,12 @@ No* altera_info(char* chave, char info_alterada, char* novo_valor);
     //caso o tipo da nova info seja int, converte novo_valor pra int e aí muda
     //retorna o no com as infos alteradas
 
-void busca_filmes(No *raiz, char* diretor);
-    //procura em cada chave da arvore pra ver se aquele filme tem esse diretor
+void busca_filmes(No *raiz, char* diretor); //remove todos filmes de um diretor
+    //procura em cada chave da arvore pra ver se aquele filme é desse diretor
     //imprime filme
 
 No *remove_filmes(No *raiz, char* diretor);
-    //procura em cada chave da arvore para ver se aquele filme tem esse diretor
+    //procura em cada chave da arvore para ver se aquele filme é desse diretor, se sim chama a funcao remove_no
     //remove filme
 
 /* FUNCOES QUE TEM QUE BOTAR NO PROGRAMA:
