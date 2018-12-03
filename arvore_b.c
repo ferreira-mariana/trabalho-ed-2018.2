@@ -279,15 +279,18 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
     printf("removendo no %s...\n", chave);
     if(raiz == NULL) return NULL;
     int i;
-    for ( i = 0; i < raiz->num_chaves && strcasecmp(chave, raiz->chave[i]) > 0; i++);  //procura a chave dentro daquele nó
-    if (strcasecmp(chave, raiz->chave[i]) == 0) { //achou a chave do nó a ser removido
+    for (i = 0; i < raiz->num_chaves && strcasecmp(chave, raiz->chave[i]) > 0; i++);//procura a chave dentro daquele nó
+    int poschave = i; //posicao da chave em que o for parou
+    if(i==raiz->num_chaves) poschave--; //caso seja a ultima
+    if (strcasecmp(chave, raiz->chave[poschave]) == 0) { //achou a chave do nó a ser removido
         printf("achou chave %s na pagina\n", chave);
         if(raiz->folha){
             printf("nó %s é folha\n", chave);
-            for(int j = i; j < raiz->num_chaves-1; j++){
+            for(int j = poschave; j < raiz->num_chaves-1; j++){
                 strcpy(raiz->chave[j], raiz->chave[j+1]); //shift para esquerda das chaves
             }
             raiz->num_chaves--; //decrementa o numero de chaves
+            printf("decrementou o numero de chaves\n");
                       
             return raiz;
         }
@@ -297,9 +300,56 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
         }
     }
     else{
+        //printf("else\n");
         raiz->filho[i] = remove_no(raiz->filho[i], chave, ordem);
+        //printf("antes do if\n");
+        if(raiz->filho[i]->num_chaves < ordem){
+            //printf("depois do if\n");
+            No *filho_atual = raiz->filho[i]; //onde tinha a chave que foi removida
+            No *irmao = raiz->filho[i-1]; //irmao da esquerda
+                      
+            //printf("antes do 2 if\n");
+            //printf("filho num chaves: %d\n", filho_atual->num_chaves);
+            //printf("irmao num chaves: %d\n", irmao->num_chaves);
+            if(filho_atual->num_chaves + irmao->num_chaves < 2*ordem){
+                //essa parte ta dando erro
+                printf("concatenar\n");
+                int j;
+                for(j=0; j < irmao->num_chaves; j++);
+                //percorre o irmao ate a ultima posicao ocupada
+                poschave--; //porque queremos o pai que está entre o filho e o irmao
+                irmao->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
+                irmao->num_chaves++;
+                //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave -1]);
+                j++;//proxima posição livre
+                int k;
+                for(k=0;k<filho_atual->num_chaves;k++){ //para as chaves do filho para o irmao
+                    //printf("filho: %s\n", filho_atual->chave[k]);
+                    //printf("irmao: %s\n", irmao->chave[j-1]);
+                    strcpy(irmao->chave[j], filho_atual->chave[k]);
+                    //printf("irmao: %s\n", irmao->chave[j]);
+                    irmao->filho[j] = filho_atual->filho[k]; //passa os filhos tambem
+                    irmao->num_chaves++;
+                    j++; //vai pra proxima posicao livre
+                }
+                //printf("ja foi shift dos filhos\n");
+                //printf("num chaves: %d\n", raiz->num_chaves);
+                //printf("poschave: %d\n", poschave);
+                
+
+                for(k=poschave; k<raiz->num_chaves-1; k++){ //shift nas chaves da raiz
+                    strcpy(raiz->chave[k], raiz->chave[k+1]); //chega pra esquerda
+                    raiz->filho[k+1] = raiz->filho[k+2]; //chega os filhos tambem
+                    //tem que k+1 e k+2 porque tem mais filhos que chaves
+                }
+                
+                raiz->num_chaves--;
+                
+            }
+        }
         
     }
+    return raiz;
 } 
 
 int main(){
@@ -309,8 +359,11 @@ int main(){
 
 
     arvore = remove_no(arvore, "Back to the Future1985", 2);
-    arvore = remove_no(arvore, "3002006", 2);
-    arvore = remove_no(arvore, "Dances with Wolves1990", 2);
+    imprime(arvore, 0);
+    arvore = remove_no(arvore, "Gifted Hands: The Ben Carson Story2009", 2);
+    imprime(arvore, 0);
+    arvore = remove_no(arvore, "Schindlers List1993", 2);
+    
     imprime(arvore, 0);
     //int ordem = 2;
     //No *arv = inicializa();
