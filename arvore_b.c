@@ -306,7 +306,10 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
         if(raiz->filho[i]->num_chaves < ordem){
             //printf("depois do if\n");
             No *filho_atual = raiz->filho[i]; //onde tinha a chave que foi removida
-            No *irmao = raiz->filho[i-1]; //irmao da esquerda
+            No *irmao;
+            if(i>0) irmao = raiz->filho[i-1]; //irmao da esquerda
+            else irmao = raiz->filho[i+1]; //irmao da direita
+            //porque o primeiro nao tem irmao da esquerda
                       
             //printf("antes do 2 if\n");
             //printf("filho num chaves: %d\n", filho_atual->num_chaves);
@@ -314,33 +317,58 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
             if(filho_atual->num_chaves + irmao->num_chaves < 2*ordem){
                 //essa parte ta dando erro
                 printf("concatenar\n");
-                int j;
-                for(j=0; j < irmao->num_chaves; j++);
-                //percorre o irmao ate a ultima posicao ocupada
-                poschave--; //porque queremos o pai que está entre o filho e o irmao
-                irmao->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
-                irmao->num_chaves++;
-                //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave -1]);
-                j++;//proxima posição livre
-                int k;
-                for(k=0;k<filho_atual->num_chaves;k++){ //para as chaves do filho para o irmao
-                    //printf("filho: %s\n", filho_atual->chave[k]);
-                    //printf("irmao: %s\n", irmao->chave[j-1]);
-                    strcpy(irmao->chave[j], filho_atual->chave[k]);
-                    //printf("irmao: %s\n", irmao->chave[j]);
-                    irmao->filho[j] = filho_atual->filho[k]; //passa os filhos tambem
+                int j, k;
+                if(i > 0){
+                    for(j=0; j < irmao->num_chaves; j++);
+                    //percorre o irmao ate a ultima posicao ocupada
+                    poschave--; //porque queremos o pai que está entre o filho e o irmao
+                    irmao->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
                     irmao->num_chaves++;
-                    j++; //vai pra proxima posicao livre
+                    //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave -1]);
+                    j++;//proxima posição livre
+                    for(k=0; k<filho_atual->num_chaves; k++){ //traz as chaves do filho para o irmao
+                        //printf("filho: %s\n", filho_atual->chave[k]);
+                        //printf("irmao: %s\n", irmao->chave[j-1]);
+                        strcpy(irmao->chave[j], filho_atual->chave[k]);
+                        //printf("irmao: %s\n", irmao->chave[j]);
+                        irmao->filho[j] = filho_atual->filho[k]; //passa os filhos tambem
+                        irmao->num_chaves++;
+                        j++; //vai pra proxima posicao livre
+                    }
                 }
+                else{ //se i = 0, se for o primeiro; caso irmao da direita
+                    //printf("removendo do primeiro filho...\n");
+                    for(j=0; j < filho_atual->num_chaves; j++);
+                    //percorre o filho ate a ultima posicao ocupada
+                    filho_atual->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
+                    filho_atual->num_chaves++;
+                    //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave]);
+                    j++;//proxima posição livre
+                    
+                    for(k=0; k<irmao->num_chaves; k++){ //traz as chaves do irmao para o filho
+                        //printf("k: %d\n", k);
+                        //printf("filho %d: %s\n", j, filho_atual->chave[j]);
+                        //printf("irmao %d: %s\n", k, irmao->chave[k]);
+                        
+                        strcpy(filho_atual->chave[j], irmao->chave[k]);
+                        
+                        //printf("filho %d: %s\n", j, filho_atual->chave[j]);
+                        filho_atual->filho[j] = irmao->filho[k]; //passa os filhos tambem
+                        filho_atual->num_chaves++;
+                        j++; //vai pra proxima posicao livre
+
+                    }
+                    
+                }
+                
                 //printf("ja foi shift dos filhos\n");
                 //printf("num chaves: %d\n", raiz->num_chaves);
                 //printf("poschave: %d\n", poschave);
                 
-
                 for(k=poschave; k<raiz->num_chaves-1; k++){ //shift nas chaves da raiz
                     strcpy(raiz->chave[k], raiz->chave[k+1]); //chega pra esquerda
                     raiz->filho[k+1] = raiz->filho[k+2]; //chega os filhos tambem
-                    //tem que k+1 e k+2 porque tem mais filhos que chaves
+                    //tem que ser k+1 e k+2 porque tem mais filhos que chaves
                 }
                 
                 raiz->num_chaves--;
@@ -363,7 +391,8 @@ int main(){
     arvore = remove_no(arvore, "Gifted Hands: The Ben Carson Story2009", 2);
     imprime(arvore, 0);
     arvore = remove_no(arvore, "Schindlers List1993", 2);
-    
+    imprime(arvore, 0);
+    arvore = remove_no(arvore, "Dances with Wolves1990", 2);
     imprime(arvore, 0);
     //int ordem = 2;
     //No *arv = inicializa();
