@@ -151,7 +151,7 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
     } else if (pos != ordem) {
         strcpy(chave_d,P->chave[ordem]);
     } else {
-        //chave que vai subir é a própria chave ch, e ela vai apontar para o novo nó Q
+        //chave que vai subir é a própria chave chave, e ela vai apontar para o novo nó Q
         strcpy(chave_d,chave);
     }
 
@@ -165,7 +165,7 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
             Q->filho[j + 1] = P->filho[i + 1];
             i--;
         } else {
-            //insere ch em Q na posição correta
+            //insere chave em Q na posição correta
             strcpy(Q->chave[j],chave); //EU MUDEI ESSA PARTE TA DIFERENTE DO CODIGO DOS MENINOS NAO SEI SE TA CERTO
             Q->filho[j + 1] = pt;
         }
@@ -184,9 +184,9 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
         i--;
     }
 
-    // Trata caso onde ch tem que ser inserida em P
+    // Trata caso onde chave tem que ser inserida em P
     if (pos <= ordem) {
-        //insere ch em P na posição pos
+        //insere chave em P na posição pos
         strcpy(P->chave[pos],chave);
         P->filho[pos + 1] = pt;
     }
@@ -278,38 +278,27 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
 No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser removido e retorna a arvore original sem o no
     printf("removendo no %s...\n", chave);
     if(raiz == NULL) return NULL;
-    No *no = busca(raiz, chave);  //busca o nó na arvore
-    if(no == NULL){
-        printf("nó nao existe\n");
-        return NULL; //se nao existe aquele nó na arvore, nao tem como remover
-    } 
-    else{ //se existe o nó a ser removido
-        printf("nó %s existe na arvore\n", chave);
-        int i;
-        for ( i = 0; i < no->num_chaves && strcasecmp(chave, no->chave[i]) > 0; i++);  //procura a chave dentro daquele nó
-        if (strcasecmp(chave, no->chave[i]) == 0) { //achou a chave do nó a ser removido
-            printf("achou chave %s na pagina\n", chave);
-            if(no->folha && no->num_chaves > ordem){ //no é folha e o num chaves não é o mínimo
-                printf("nó %s é folha\n", chave);
-                for(int j = i; j < no->num_chaves-1; j++){
-                    strcpy(no->chave[j], no->chave[j+1]); //shift para esquerda das chaves
-                }
-                //free(no->chave[no->num_chaves]); //seria pra dar free da ultima chave,
-                // ja q com o shift fica repetida, mas nao está indo
-                no->num_chaves--; //decrementa o numero de chaves
-                printf("\n");
-                //for(int i=0; i<no->num_chaves; i++) printf("no->chave[%d] %s\n", i, no->chave[i]); 
-                // para conferir as chaves que tem no nó depois que foi feita a remoçao
-                return raiz;
+    int i;
+    for ( i = 0; i < raiz->num_chaves && strcasecmp(chave, raiz->chave[i]) > 0; i++);  //procura a chave dentro daquele nó
+    if (strcasecmp(chave, raiz->chave[i]) == 0) { //achou a chave do nó a ser removido
+        printf("achou chave %s na pagina\n", chave);
+        if(raiz->folha){
+            printf("nó %s é folha\n", chave);
+            for(int j = i; j < raiz->num_chaves-1; j++){
+                strcpy(raiz->chave[j], raiz->chave[j+1]); //shift para esquerda das chaves
             }
-            else {
-                //numero de chaves é o mínimo
-                //fazer concatenação ou redistribuição
-                printf("nao pode simplesmente remover porque o nó está com o numero mínimo de chaves\n");
-                printf("precisa fazer concatenação ou redistribuição\n");
-                return raiz;
-            }
+            raiz->num_chaves--; //decrementa o numero de chaves
+                      
+            return raiz;
         }
+        else{ //é intermediário
+            printf("é intermediario\n");
+            return raiz;
+        }
+    }
+    else{
+        raiz->filho[i] = remove_no(raiz->filho[i], chave, ordem);
+        
     }
 } 
 
