@@ -30,7 +30,7 @@ No* leLinhas(No *a, char *arquivo, int ordem){
         printf("--------------------------------------------\n");
         printf("Executando funcao LerArquivo\n");
         printf("%s\n",chave);
-        arv = insere(arv, 1, chave, NULL, ordem);
+        arv = insere(arv, 1, chave, NULL, ordem, dados);
         printf("\nIMPRIMINDO ARVORE\n");
         imprime(arv,0);
     }

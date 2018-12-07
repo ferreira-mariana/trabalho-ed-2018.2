@@ -14,8 +14,9 @@ typedef struct info{
 typedef struct No{
     int num_chaves, folha;
     char **chave;
-    Info **info;
+
     struct No **filho, *pai;
+    Info **infos;
 }No;
 
 No* leLinhas(No *arv, char *nome, int ordem);
@@ -25,9 +26,11 @@ No *cria_no(int ordem); //aloca espaço pra um no
 No *libera(No *arv, int ordem); //esvazia arvore toda
 void imprime(No *arv, int nivel); // imprime arvore por niveis
 No *busca_no(No* raiz, char* chave); //busca o no na arvore e se nao acha retorna o no onde a chave deveria estar
-No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem); //particiona o no, funcao auxiliar a de inserir
-No *insere(No *raiz, int folha, char* chave, No *pt, int ordem); //insere no na arvore
-
+No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem, Info *infos); //particiona o no, funcao auxiliar a de inserir
+No *insere(No *raiz, int folha, char* chave, No *pt, int ordem, Info *infos); //insere no na arvore
+void salvar_arvore(No *arv);
+void escreve_arq(No *arv);
+void imprime_infos(No* arv, int nivel);
 
 //funcao antiga, nao to usando ainda
 No *busca(No *no, char* ch);
@@ -40,7 +43,7 @@ No* remove_no(No* raiz, char* chave, int ordem); //recebe a chave do no a ser re
 void busca_infos(No* raiz, char* chave); //recebe uma arvore, usa a busca_no e imprime as infos daquela chave
 
 No* altera_info(char* chave, char info_alterada, char* novo_valor);
-    
+
     //recebe a chave, usa a busca_no
     //info alterada:
     //t = titulos, a = ano, d = diretor, g = genero, m = minutos

@@ -9,6 +9,7 @@
 
 #include "arvore_b.h"
 
+int id_arq = 0;
 
 No *cria_no(int ordem) {
     No *novo = (No *) malloc(sizeof(No));
@@ -17,8 +18,8 @@ No *cria_no(int ordem) {
     novo->pai = NULL;
     novo->chave = (char**) malloc(sizeof(char*) * (ordem * 2));
     for(int i=0;i<(ordem*2);i++) novo->chave[i] = (char *) malloc((100)*sizeof(char));
-    novo->info = (Info**)malloc(sizeof(Info*) * (ordem * 2));
-    for(int i=0;i<(ordem*2);i++) novo->info[i] = (Info *) malloc((100)*sizeof(Info));
+    novo->infos = (Info**)malloc(sizeof(Info*) * (ordem * 2));
+    for(int i=0;i<(ordem*2);i++) novo->infos[i] = (Info *) malloc((100)*sizeof(Info));
     novo->filho = (No**) malloc(sizeof(No *) * (ordem * 2 + 1));
     for(int i = 0; i < (ordem * 2 + 1); i++) {
         novo->filho[i] = NULL;
@@ -64,21 +65,21 @@ void imprime(No *arv, int nivel) {
 }
 */
 void imprime(No *a, int andar){
-  if(a){
-    int i,j;
-    for(i=0; i<=a->num_chaves-1; i++){
-      imprime(a->filho[i],andar+1);
-      for(j=0; j<=andar; j++) printf("              ");
-      printf("%s\n", a->chave[i]);
+    if(a){
+        int i,j;
+        for(i=0; i<=a->num_chaves-1; i++){
+            imprime(a->filho[i],andar+1);
+            for(j=0; j<=andar; j++) printf("              ");
+            printf("%s\n", a->chave[i]);
+        }
+        imprime(a->filho[i],andar+1);
     }
-    imprime(a->filho[i],andar+1);
-  }
 }
 
 
 No *busca_no(No* raiz, char* chave){
-	printf("Buscando o no de chave %s\n", chave);
-      
+    printf("Buscando o no de chave %s\n", chave);
+
     if(!raiz) return NULL; //nao achou
     else{
         int i = 0;
@@ -87,20 +88,21 @@ No *busca_no(No* raiz, char* chave){
             i++;
         }
         if (i < raiz->num_chaves && strcmp(chave, raiz->chave[i]) == 0){ //achou
+
             printf("\nachei o no\n");
             return raiz;
         }
         else if(raiz->filho[i] != NULL){
             return busca(raiz->filho[i], chave); //faz a mesma busca para o filho onde a chave estaria
-        } 
+        }
         else{
             printf("\nnao achei\n");
             return raiz; //se não acha, retorna o no onde deveria estar a chave
-        } 
+        }
     }
 }
 
-
+ //essa aqui vai poder sair.
 No *busca(No *no, char* chave) {
     printf("buscando a chave %s\n", chave);
     if (no != NULL) {
@@ -122,18 +124,20 @@ No *busca(No *no, char* chave) {
 
 //ADAPTAR A PARTICIONA E A INSERE DEPOIS
 
-No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
+No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem, Info* infos) {
     No *Q = cria_no(ordem);
     Q->num_chaves = ordem; //número de chaves na nova página Q é d
     Q->pai = P->pai;
-
     //Verifica a posição onde chave deve ser inserida
     int pos = -1;
+
+
     for (int i = 0; i < P->num_chaves; i++) {
-        if (strcmp(chave, P->chave[i])>0) {
-            pos = i + 1;
-        }
+            if (strcmp(chave, P->chave[i]) > 0) {
+                pos = i + 1;
+            }
     }
+
     printf("\nPOSICAO: %d\n", pos);
 
     if (pos == -1) {
@@ -143,16 +147,36 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
 
     //salva chave da posicao d para subir para o pai (note que d equivale a d+1 já que vetor começa em ZERO
     char *chave_d = (char*) malloc(sizeof(char)*200);
+    Info *infos_d = (Info *) malloc((100)*sizeof(Info));
     No *pt_chave_d = Q; //ponteiro que sobre é sempre ponteiro para o novo nó Q
-    if (pos != ordem && pos < ordem) {
+    if (pos < ordem) {
         //chave vai ser inserida em posição menor que d, então tem que compensar diminuindo 1 no índice
         printf("CHAVE QUE VAI SUBIR: %s", P->chave[ordem-1]);
         strcpy(chave_d,P->chave[ordem - 1]);
-    } else if (pos != ordem) {
+        infos_d->ano = P->infos[ordem-1]->ano;
+        infos_d->minutos = P->infos[ordem-1]->minutos;
+        strcpy(infos_d->diretor, P->infos[ordem-1]->diretor);
+        strcpy(infos_d->titulo, P->infos[ordem-1]->titulo);
+        strcpy(infos_d->genero, P->infos[ordem-1]->genero);
+    } else if (pos > ordem) {
+        printf("CHAVE QUE VAI SUBIR: %s", P->chave[ordem]);
         strcpy(chave_d,P->chave[ordem]);
+        infos_d->ano = P->infos[ordem]->ano;
+        infos_d->minutos = P->infos[ordem]->minutos;
+        strcpy(infos_d->diretor, P->infos[ordem]->diretor);
+        strcpy(infos_d->titulo, P->infos[ordem]->titulo);
+        strcpy(infos_d->genero, P->infos[ordem]->genero);
+
     } else {
-        //chave que vai subir é a própria chave chave, e ela vai apontar para o novo nó Q
+        printf("CHAVE QUE VAI SUBIR: %s", chave);
+        //chave que vai subir é a própria chave ch, e ela vai apontar para o novo nó Q
         strcpy(chave_d,chave);
+        infos_d->ano = infos->ano;
+        infos_d->minutos = infos->minutos;
+        strcpy(infos_d->diretor, infos->diretor);
+        strcpy(infos_d->titulo, infos->titulo);
+        strcpy(infos_d->genero, infos->genero);
+
     }
 
     //Ajusta chaves em Q, copiando de P as últimas d chaves
@@ -162,11 +186,21 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
     while (j >= 0) {
         if (j != pos - ordem - 1) {
             strcpy(Q->chave[j],P->chave[i]);
+            Q->infos[j]->ano = P->infos[i]->ano;
+            Q->infos[j]->minutos = P->infos[i]->minutos;
+            strcpy(Q->infos[j]->diretor, P->infos[i]->diretor);
+            strcpy(Q->infos[j]->titulo, P->infos[i]->titulo);
+            strcpy(Q->infos[j]->genero, P->infos[i]->genero);
             Q->filho[j + 1] = P->filho[i + 1];
             i--;
         } else {
-            //insere chave em Q na posição correta
-            strcpy(Q->chave[j],chave); //EU MUDEI ESSA PARTE TA DIFERENTE DO CODIGO DOS MENINOS NAO SEI SE TA CERTO
+            //insere ch em Q na posição correta
+            strcpy(Q->chave[j], chave); //EU MUDEI ESSA PARTE TA DIFERENTE DO CODIGO DOS MENINOS NAO SEI SE TA CERTO
+            Q->infos[j]->ano = infos->ano;
+            Q->infos[j]->minutos = infos->minutos;
+            strcpy(Q->infos[j]->diretor, infos->diretor);
+            strcpy(Q->infos[j]->titulo,infos->titulo);
+            strcpy(Q->infos[j]->genero, infos->genero);
             Q->filho[j + 1] = pt;
         }
         j--;
@@ -174,46 +208,75 @@ No *particiona(No *raiz, No *P, char *chave, No *pt, int ordem) {
 
     //Ajusta ponteiro p[0] de Q, que tem que ser o ponteiro d de P
     Q->filho[0] = P->filho[ordem];
+   printf("%s", Q->chave[0]);
 
     //Ajusta chaves em P fazendo shif se necessário
     j = ordem;
     printf("\ni = %d\nj = %d\npos = %d\n", i, j, pos);
     while (i > pos) {
         strcpy(P->chave[i], P->chave[i - 1]);
+        P->infos[i]->ano = P->infos[i-1]->ano;
+        P->infos[i]->minutos = P->infos[i-1]->minutos;
+        strcpy(P->infos[i]->diretor, P->infos[i-1]->diretor);
+        strcpy(P->infos[i]->titulo, P->infos[i-1]->titulo);
+        strcpy(P->infos[i]->genero, P->infos[i-1]->genero);
         P->filho[i + 1] = P->filho[i];
         i--;
     }
 
-    // Trata caso onde chave tem que ser inserida em P
+
+    // Trata caso onde ch tem que ser inserida em P
     if (pos <= ordem) {
-        //insere chave em P na posição pos
+        //insere ch em P na posição pos
         strcpy(P->chave[pos],chave);
+        P->infos[pos]->ano = infos->ano;
+        P->infos[pos]->minutos = infos->minutos;
+        strcpy(P->infos[pos]->diretor, infos->diretor);
+        strcpy(P->infos[pos]->titulo,infos->titulo);
+        strcpy(P->infos[pos]->genero, infos->genero);
         P->filho[pos + 1] = pt;
     }
 
     //Ajusta quantidades de chaves em P
     P->num_chaves = ordem;
 
-    //Insere chave d+1 no pai de P e ponteiro apontando para a nova página Q
+    No *pai;
 
-    No *pai = insere(P->pai, 0, chave_d, pt_chave_d, ordem);
+    if(P->pai != NULL && P->pai->pai != NULL) {
+        //Insere chave d+1 no pai de P e ponteiro apontando para a nova página Q
+        int contPos = 0;
+        int cont = 0;
 
+        for(int j=0; P->chave[j] != NULL; j++) { // = 2
+
+            if (busca_no(P->pai->pai->filho[j], P->chave[0]) == P) {
+                contPos = j;
+                break;
+            }}
+
+        pai = insere(P->pai->pai->filho[contPos], 0, chave_d, pt_chave_d, ordem, infos_d);
+
+    }else {
+        pai = insere(P->pai, 0, chave_d, pt_chave_d, ordem, infos_d);
+    }
     //Se P->pai era NULL, significa que árvore tem uma nova raiz, então é preciso ajustar os ponteiros para o pai de P e Q para apontar para esse novo nó
     if (P->pai == NULL) {
         P->pai = pai;
         Q->pai = pai;
+
         //Arruma ponteiros da nova raiz
         pai->filho[0] = P;
         pai->filho[1] = Q;
         pai->folha = 0;
-    }
+  }
+
     raiz = pai;
     //imprime(raiz, 0);
     return raiz;
 }
 
 
-No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
+No *insere(No *raiz, int folha, char* chave, No *pt, int ordem, Info *infos) {
     printf("executando insere\n");
     No *no;
 
@@ -247,20 +310,44 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
         printf("inseriu chave\n");
         raiz->num_chaves = 1;
         printf("%s\n", raiz->chave[0]);
+        raiz->infos[0]->ano = infos->ano;
+        raiz->infos[0]->minutos = infos->minutos;
+        strcpy(raiz->infos[0]->diretor, infos->diretor);
+        strcpy(raiz->infos[0]->titulo, infos->titulo);
+        strcpy(raiz->infos[0]->genero, infos->genero);
+
         return raiz;
     } else {
         printf("raiz nao eh null\n");
         if (no->num_chaves == (2 * ordem)) {
             printf("o no ta cheio, tem que particionar\n");
+
             //Nó está cheio -- é necessário particionar
             //raiz da árvore pode ter mudado, então captura possível nova raiz
-            //printf("\nRaiz: %s\nP: %s\n", raiz->chave[0], no->chave[0]);
-            raiz = particiona(raiz, no, chave, pt, ordem);
+
+            if(no->pai != NULL && no->pai->pai != NULL){
+                particiona(raiz, no, chave, pt, ordem, infos);
+            }
+
+            else
+            {
+                raiz = particiona(raiz, no, chave, pt, ordem, infos);
+            }
         } else {
             //encontra posição de inserção
+
             int i = no->num_chaves;
+            printf("chave: %s", no->chave[0]);
             while (i > 0 && strcmp(chave , no->chave[i - 1])<0) {
                 strcpy(no->chave[i],no->chave[i - 1]);
+
+                no->infos[i]->ano = no->infos[i-1]->ano;
+                no->infos[i]->minutos = no->infos[i-1]->minutos;
+                strcpy(no->infos[i]->diretor, no->infos[i-1]->diretor);
+                strcpy(no->infos[i]->titulo, no->infos[i-1]->titulo);
+                strcpy(no->infos[i]->genero, no->infos[i-1]->genero);
+
+
                 no->filho[i + 1] = no->filho[i];
                 i--;
             }
@@ -268,12 +355,164 @@ No *insere(No *raiz, int folha, char* chave, No *pt, int ordem) {
                 i = 0;
             }
             strcpy(no->chave[i],chave);
+
+            no->infos[i]->ano = infos->ano;
+            no->infos[i]->minutos = infos->minutos;
+            strcpy(no->infos[i]->diretor, infos->diretor);
+            strcpy(no->infos[i]->titulo, infos->titulo);
+            strcpy(no->infos[i]->genero, infos->genero);
+
+
             no->filho[i + 1] = pt;
             no->num_chaves++;
         }
     }
     return raiz;
 }
+
+Info *buscaInfo (No *a, char *chaves){
+    No *no = inicializa();
+    no = busca(a, chaves);
+    int i;
+    Info *infos;
+    for (i=0; i < no->num_chaves; i++){
+        if (strcmp(no->chave[i],chaves)==0){
+            printf("Filme: %s\n",no->infos[i]->titulo);
+            printf("Diretor: %s\n",no->infos[i]->diretor);
+            printf("Ano: %d\n",no->infos[i]->ano);
+            printf("Duracao: %d\n",no->infos[i]->minutos);
+            printf("Genero: %s\n",no->infos[i]->genero);
+            return no->infos[i];
+        }
+        else{
+            infos = NULL;
+        }
+    }
+    return infos;
+
+}
+
+No *EditaInfos(No *arv, char *ch){
+    No *no = inicializa();
+    no = busca(arv, ch);
+    int i, pos = -1;
+    for (i=0; i < no->num_chaves; i++){
+        if (strcmp(no->chave[i],ch)==0) pos = i;
+    }
+    printf("Infos atuais:\n");
+    Info *infos_atuais = buscaInfo(arv, ch);
+    printf("\n");
+    char diretor[50];
+    char genero[30];
+    int minutos;
+    printf("Digite as novas informações\n");
+    printf("Diretor: \n");
+    scanf("%s", diretor);
+    strcpy(no->infos[pos]->diretor, diretor);
+    printf("Genero: \n");
+    scanf("%s", genero);
+    strcpy(no->infos[pos]->genero, genero);
+    printf("Tempo de duracao: \n");
+    scanf("%d", &no->infos[pos]->minutos);
+    printf("\n");
+    Info *change = buscaInfo(arv,ch);
+    return arv;
+}
+
+void ImprimeInfos(No *arv, int nivel){
+    if(arv){
+        int i;
+        for(i=0; i<=arv->num_chaves-1; i++){
+            ImprimeInfos(arv->filho[i],nivel+1);
+            printf("Chave: %s\n", arv->chave[i]);
+            printf("Titulo do filme: %s\n", arv->infos[i]->titulo);
+            printf("Genero: %s\n", arv->infos[i]->genero);
+            printf("Diretor: %s\n", arv->infos[i]->diretor);
+            printf("Ano: %d\n", arv->infos[i]->ano);
+            printf("Tempo de duraçao: %d\n", arv->infos[i]->minutos);
+            printf("---------------------------------------\n\n\n");
+        }
+        ImprimeInfos(arv->filho[i],nivel+1);
+    }
+}
+//terminar aqui de editar e apagar isso
+
+void escreve_arq(No *a) {
+    char nome_arq[101];
+    sprintf(nome_arq, "arq_%d", id_arq);
+    id_arq++;
+    FILE *fp = fopen(nome_arq, "wb");
+    if(fp == NULL) {
+        printf("fp == NULL na função: escreve_no_arquivo\n");
+        exit(1);
+    }
+    int i;
+
+    fwrite(&a->num_chaves, sizeof(int), 1, fp);
+    for(i = 0; i < a->num_chaves; i++)
+        fwrite(&a->chave[i], sizeof(char)*200, 1, fp);
+
+    if(a->folha != 1) {
+        for(i = 0; i < a->num_chaves; i++) {
+            fwrite(a->filho[i]->chave[i], sizeof(char)*200, 1, fp);
+        }
+    }
+
+    fclose(fp);
+}
+
+void salvar_arvore(No *no){
+    if (no != NULL) {
+        escreve_arq(no);
+        int i = 0;
+        for (i = 0; i < no->num_chaves; i++){
+            if(no->filho[i]){
+                salvar_arvore(no->filho[i]);
+            }
+        }
+    }
+}
+
+void busca_diretor(No *arv, char* diretor, int nivel){
+    if(arv){
+        int i;
+        for(i=0; i<=arv->num_chaves-1; i++){
+            busca_diretor(arv->filho[i],diretor, nivel +1);
+            if (strcmp(arv->infos[i]->diretor,diretor)==0){
+                printf("Chave: %s\n", arv->chave[i]);
+                printf("Titulo: %s\n", arv->infos[i]->titulo);
+                printf("Genero: %s\n", arv->infos[i]->genero);
+                printf("Diretor: %s\n", arv->infos[i]->diretor);
+                printf("Ano: %d\n", arv->infos[i]->ano);
+                printf("Duracao em minutos: %d\n", arv->infos[i]->minutos);
+                printf("\n\n\n");
+            }
+
+        }
+        busca_diretor(arv->filho[i],diretor, nivel +1);
+    }
+}
+
+
+
+
+void remove_genero(No* arv, char* genero, int nivel, int ordem){
+    if(arv){
+        char *gen = genero;
+        char *tok  ;
+        int i;
+        for(i = 0; i<=arv->num_chaves-1;i++){
+            remove_genero(arv->filho[i], genero, nivel + 1, ordem);
+            if(strcmp(genero, arv->infos[i]->genero)==0){
+                remove_no(arv, arv->chave[i], ordem);
+            }
+
+        }
+        remove_genero(arv->filho[i], genero, nivel + 1, ordem);
+    }
+}
+
+
 
 No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser removido e retorna a arvore original sem o no
     printf("removendo no %s...\n", chave);
@@ -290,145 +529,223 @@ No* remove_no(No* raiz, char* chave, int ordem){ //recebe a chave do no a ser re
                 strcpy(raiz->chave[j], raiz->chave[j+1]); //shift para esquerda das chaves
             }
             raiz->num_chaves--; //decrementa o numero de chaves
-            printf("decrementou o numero de chaves\n");
-                      
+            //printf("decrementou o numero de chaves\n");
             return raiz;
         }
-        else{ //é intermediário
-            printf("é intermediario\n");
-            return raiz;
-        }
+
     }
     else{
-        //printf("else\n");
         raiz->filho[i] = remove_no(raiz->filho[i], chave, ordem);
-        //printf("antes do if\n");
         if(raiz->filho[i]->num_chaves < ordem){
-            //printf("depois do if\n");
             No *filho_atual = raiz->filho[i]; //onde tinha a chave que foi removida
             No *irmao;
             if(i>0) irmao = raiz->filho[i-1]; //irmao da esquerda
             else irmao = raiz->filho[i+1]; //irmao da direita
             //porque o primeiro nao tem irmao da esquerda
-                      
-            //printf("antes do 2 if\n");
-            //printf("filho num chaves: %d\n", filho_atual->num_chaves);
-            //printf("irmao num chaves: %d\n", irmao->num_chaves);
+            int j, k;
             if(filho_atual->num_chaves + irmao->num_chaves < 2*ordem){
                 //essa parte ta dando erro
                 printf("concatenar\n");
-                int j, k;
                 if(i > 0){
                     for(j=0; j < irmao->num_chaves; j++);
                     //percorre o irmao ate a ultima posicao ocupada
-                    poschave--; //porque queremos o pai que está entre o filho e o irmao
-                    irmao->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
+                    if(poschave < raiz->num_chaves-1) poschave--;
+                    //porque queremos o pai que está entre o filho e o irmao, mas se for o ultimo nao precisa
+
+                    strcpy(irmao->chave[j], raiz->chave[poschave]); //recebe a chave do pai que está entre o filho e o irmao
                     irmao->num_chaves++;
-                    //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave -1]);
                     j++;//proxima posição livre
+
                     for(k=0; k<filho_atual->num_chaves; k++){ //traz as chaves do filho para o irmao
-                        //printf("filho: %s\n", filho_atual->chave[k]);
-                        //printf("irmao: %s\n", irmao->chave[j-1]);
                         strcpy(irmao->chave[j], filho_atual->chave[k]);
-                        //printf("irmao: %s\n", irmao->chave[j]);
                         irmao->filho[j] = filho_atual->filho[k]; //passa os filhos tambem
                         irmao->num_chaves++;
                         j++; //vai pra proxima posicao livre
                     }
                 }
                 else{ //se i = 0, se for o primeiro; caso irmao da direita
-                    //printf("removendo do primeiro filho...\n");
+                    printf("removendo do primeiro filho...\n");
                     for(j=0; j < filho_atual->num_chaves; j++);
                     //percorre o filho ate a ultima posicao ocupada
-                    filho_atual->chave[j] = raiz->chave[poschave]; //recebe a chave do pai que está entre o filho e o irmao
+                    strcpy(filho_atual->chave[j], raiz->chave[poschave]); //recebe a chave do pai que está entre o filho e o irmao
                     filho_atual->num_chaves++;
-                    //printf("raiz entre filho e irmao: %s\n", raiz->chave[poschave]);
                     j++;//proxima posição livre
-                    
                     for(k=0; k<irmao->num_chaves; k++){ //traz as chaves do irmao para o filho
-                        //printf("k: %d\n", k);
-                        //printf("filho %d: %s\n", j, filho_atual->chave[j]);
-                        //printf("irmao %d: %s\n", k, irmao->chave[k]);
-                        
                         strcpy(filho_atual->chave[j], irmao->chave[k]);
-                        
-                        //printf("filho %d: %s\n", j, filho_atual->chave[j]);
                         filho_atual->filho[j] = irmao->filho[k]; //passa os filhos tambem
                         filho_atual->num_chaves++;
                         j++; //vai pra proxima posicao livre
-
                     }
-                    
+
                 }
-                
+
                 //printf("ja foi shift dos filhos\n");
                 //printf("num chaves: %d\n", raiz->num_chaves);
-                //printf("poschave: %d\n", poschave);
-                
-                for(k=poschave; k<raiz->num_chaves-1; k++){ //shift nas chaves da raiz
-                    strcpy(raiz->chave[k], raiz->chave[k+1]); //chega pra esquerda
-                    raiz->filho[k+1] = raiz->filho[k+2]; //chega os filhos tambem
-                    //tem que ser k+1 e k+2 porque tem mais filhos que chaves
+                //printf("pos chave %d\n", poschave);
+
+                if(poschave < raiz->num_chaves-1){ //só deve fazer o shift se nao for a ultima chave do nó
+                    for(k=poschave; k<raiz->num_chaves-1; k++){ //shift nas chaves da raiz
+                        strcpy(raiz->chave[k], raiz->chave[k+1]); //chega pra esquerda
+                        raiz->filho[k+1] = raiz->filho[k+2]; //chega os filhos tambem
+                        //tem que ser k+1 e k+2 porque tem mais filhos que chaves
+                    }
                 }
-                
                 raiz->num_chaves--;
-                
+
             }
+            else{
+                printf("precisa fazer redistruibuição:\n");
+
+            }
+
         }
-        
+
     }
     return raiz;
-} 
+}
+
+void selecionar_operacao(No * arvore){
+    int selecionando = 1;
+    char *arquivo = "arquivotrab.txt";
+    int ordem;
+    printf("\nDigite a ordem da arvore desejada: ");
+    scanf("%d", &ordem);
+    printf("\nInserindo filmes do arquivo para a arvore \n");
+    arvore = leLinhas(arvore, arquivo, ordem);
+
+
+    while(selecionando){
+        setbuf(stdin, NULL);
+        printf("\n1 - Inserir outro filme\n");
+        printf("\n2 - Buscar filme\n");
+        printf("\n3 - Editar informações do filme\n");
+        printf("\n4 - Imprimir todos os filmes\n");
+
+        printf("\n5 - Buscar Filmografia do diretor\n");
+        printf("\n6 - Remover filme\n");
+
+        printf("\n7 - Remover filmes da categoria\n");
+        printf("\n8 - Salvar arvore\n");
+
+
+        printf("\nDigite outro numero para interromper a execucao \n\n");
+        printf("\nDigite a operacao que deseja realizar\n");
+        scanf(" %d", &selecionando);
+        printf("\n");
+
+        if(selecionando== 1 ){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            Info *infos = (Info* )malloc(sizeof(Info));
+            char nome[200];
+            printf("Digite o nome do filme: ");
+            scanf ( "%[^\n]", infos->titulo);
+            fflush(stdin);
+            strcpy(nome, infos->titulo);
+
+            printf("Digite o ano do filme: ");
+            char ano[10];
+            scanf("%s", ano);
+            fflush(stdin);
+            infos->ano = atoi(ano);
+            strcat(nome, ano);
+            printf("Digite o diretor do filme: ");
+            scanf("%s", infos->diretor);
+            fflush(stdin);
+            printf("Digite o genero do filme: ");
+            scanf("%s", infos->genero);
+
+            arvore = insere(arvore, arvore->folha, nome, arvore->pai, 2, infos);
+
+
+            printf("%s\n", nome);
+            printf("\n ARVORE DEPOIS DA INSERÇAO\n");
+            imprime(arvore, 0);
+
+        }
+
+        else if(selecionando== 6 ){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            char chave[200];
+
+            printf("Digite a chave do filme que voce quer remover: ");
+
+
+            scanf ( "%[^\n]", chave);
+
+            fflush(stdin);
+
+
+            arvore = remove_no(arvore, chave, ordem);
+            imprime(arvore, 0);
+
+        }
+
+
+
+         else if(selecionando == 2 ){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            printf("\nDigite o nome do filme que voce quer buscar:\n\n");
+            char chave[200];
+            scanf ( "%[^\n]", chave);
+            Info *infos = (Info* )malloc(sizeof(Info));
+
+            infos = buscaInfo(arvore, chave);
+
+        }
+        else if(selecionando == 3 ){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            printf("Digite a chave do filme que voce quer editar: \n");
+            char chave[200];
+            scanf ( "%[^\n]", chave);
+            Info *infos = (Info* )malloc(sizeof(Info));
+
+            arvore = EditaInfos(arvore, chave);
+
+        }
+
+        else if(selecionando== 4 ){
+            printf("\nImprimindo arvore\n\n");
+            ImprimeInfos(arvore, 0);
+        }
+        else if(selecionando== 5){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            printf("\nDigite o diretor que voce quer buscar: \n\n");
+            char diretor[30];
+            scanf ( "%[^\n]", diretor);
+            busca_diretor(arvore, diretor, 0);
+
+        }else if(selecionando== 6){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            printf("\nDigite a chave do filme que voce quer remover: \n\n");
+            char filme[200];
+            scanf ( "%[^\n]", filme);
+            remove_no(arvore, filme, ordem);
+
+        }
+
+        else if(selecionando== 7){
+            setbuf(stdin, NULL);
+            fflush(stdin);
+            printf("\n Digite o genero que voce quer remover: \n\n");
+            char genero[50];
+            scanf ( "%[^\n]", genero);
+            remove_genero(arvore, genero, 0, ordem);
+        }
+        else if(selecionando== 8){
+            salvar_arvore(arvore);
+        }
+
+    }
+}
 
 int main(){
-    char *arquivo = "arquivotrab.txt";
     No *arvore = inicializa();
-    arvore = leLinhas(arvore, arquivo ,2);
+    selecionar_operacao(arvore);
 
-
-    arvore = remove_no(arvore, "Back to the Future1985", 2);
-    imprime(arvore, 0);
-    arvore = remove_no(arvore, "Gifted Hands: The Ben Carson Story2009", 2);
-    imprime(arvore, 0);
-    arvore = remove_no(arvore, "Schindlers List1993", 2);
-    imprime(arvore, 0);
-    arvore = remove_no(arvore, "Dances with Wolves1990", 2);
-    imprime(arvore, 0);
-    //int ordem = 2;
-    //No *arv = inicializa();
-    //char nome_arq[128];
-    
-    //printf("Por favor, digite o nome do arquivo: \n");
-    //scanf("%s", nome_arq);
-    
-
-    //SE A PRIMEIRA PALAVRA FOR "MENOR" OU SEJA VIER ANTES NO ALFABETO RETORNA UM NUMERO NEGATIVO
-    
-/*
-
-    arv = insere(arv, 1, "carol", NULL, ordem);
-    
-    imprime(arv,0);
-
-    arv = insere(arv, 1, "oi", NULL, ordem);
-
-    imprime(arv,0);
-
-    arv = insere(arv, 1, "dudu", NULL, ordem);
-
-    imprime(arv,0);
-
-    arv = insere(arv, 1, "elisa", NULL, ordem);
-    
-    imprime(arv,0);
-
-    arv = insere(arv, 1, "bia", NULL, ordem);
-
-    imprime(arv,0);
-    
-*/
-    //arv = leLinhas(arv, nome_arq, ordem);
-
-
-    //imprime(arv, 0);
 }
